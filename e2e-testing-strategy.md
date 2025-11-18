@@ -20,10 +20,10 @@ This document outlines a comprehensive End-to-End (E2E) testing strategy for Dar
 ```
 e2e-tests/
 ├── tests/                          # Test files organized by feature
-│   ├── tab-management.spec.js
-│   ├── sidebar-navigation.spec.js
-│   ├── agent-interaction.spec.js
-│   └── clipboard-history.spec.js
+│   ├── 001-tab-management.spec.js
+│   ├── 002-sidebar-navigation.spec.js
+│   ├── 003-agent-interaction.spec.js
+│   └── 004-clipboard-history.spec.js
 ├── fixtures/                       # Test data and setup utilities
 │   ├── test-data.js
 │   └── browser-setup.js
@@ -33,12 +33,14 @@ e2e-tests/
 │   ├── report-generator.js        # README.md generation
 │   └── test-context.js            # Extended Playwright context
 ├── reports/                        # Generated test reports
-│   ├── tab-management/
+│   ├── 001-tab-management/
 │   │   ├── README.md
-│   │   ├── step-1-initial-state.png
-│   │   ├── step-2-create-tab.png
+│   │   ├── 001/
+│   │   │   └── screenshot.png
+│   │   ├── 002/
+│   │   │   └── screenshot.png
 │   │   └── ...
-│   └── sidebar-navigation/
+│   └── 002-sidebar-navigation/
 │       └── ...
 ├── playwright.config.js            # Playwright configuration
 └── README.md                       # Overview and setup instructions
@@ -158,6 +160,8 @@ Create a custom test context that extends Playwright's context:
 
 ```javascript
 // helpers/test-context.js
+import fs from 'fs/promises';
+
 export class TestContext {
   constructor(page, testName) {
     this.page = page;
@@ -168,14 +172,20 @@ export class TestContext {
   }
   
   async captureStep(stepName, details) {
+    const stepNumber = String(this.stepCounter).padStart(3, '0');
     const step = {
       number: this.stepCounter++,
       name: stepName,
       description: details.description,
       expectations: details.expectations,
       timestamp: new Date().toISOString(),
-      screenshot: `step-${this.stepCounter}-${stepName}.png`
+      screenshot: `${stepNumber}/screenshot.png`,
+      stepDir: `${stepNumber}`
     };
+    
+    // Create step directory
+    const stepPath = `${this.screenshotDir}/${step.stepDir}`;
+    await fs.mkdir(stepPath, { recursive: true });
     
     // Capture screenshot
     await this.page.screenshot({
@@ -351,7 +361,6 @@ export class ReportGenerator {
     let md = `# Test Report: ${testName}\n\n`;
     md += `**Generated**: ${new Date().toISOString()}\n\n`;
     md += `**Total Steps**: ${steps.length}\n\n`;
-    md += `---\n\n`;
     
     for (const step of steps) {
       md += `## Step ${step.number}: ${step.name}\n\n`;
@@ -368,12 +377,9 @@ export class ReportGenerator {
       
       if (step.dataValidation) {
         md += `### Data Validation\n\n`;
-        md += '```json\n';
         md += JSON.stringify(step.dataValidation, null, 2);
-        md += '\n```\n\n';
+        md += '\n\n';
       }
-      
-      md += `---\n\n`;
     }
     
     return md;
@@ -386,7 +392,7 @@ export class ReportGenerator {
 ### Example 1: Tab Management Test
 
 ```javascript
-// e2e-tests/tests/tab-management.spec.js
+// e2e-tests/tests/001-tab-management.spec.js
 import { test, expect } from '@playwright/test';
 import { TestContext } from '../helpers/test-context.js';
 import { DataValidator } from '../helpers/data-validation.js';
@@ -396,7 +402,7 @@ test.describe('Tab Management', () => {
   let dataValidator;
   
   test.beforeEach(async ({ page }) => {
-    testContext = new TestContext(page, 'tab-management');
+    testContext = new TestContext(page, '001-tab-management');
     dataValidator = new DataValidator(page);
     
     // Navigate to app
@@ -539,7 +545,7 @@ test.describe('Tab Management', () => {
 ### Example 2: Sidebar Navigation Test
 
 ```javascript
-// e2e-tests/tests/sidebar-navigation.spec.js
+// e2e-tests/tests/002-sidebar-navigation.spec.js
 import { test, expect } from '@playwright/test';
 import { TestContext } from '../helpers/test-context.js';
 
@@ -547,7 +553,7 @@ test.describe('Sidebar Navigation', () => {
   let testContext;
   
   test.beforeEach(async ({ page }) => {
-    testContext = new TestContext(page, 'sidebar-navigation');
+    testContext = new TestContext(page, '002-sidebar-navigation');
     await page.goto('https://localhost:5194');
     await page.waitForLoadState('networkidle');
   });
@@ -624,7 +630,7 @@ test.describe('Sidebar Navigation', () => {
 ### Example 3: Agent Interaction Test
 
 ```javascript
-// e2e-tests/tests/agent-interaction.spec.js
+// e2e-tests/tests/003-agent-interaction.spec.js
 import { test, expect } from '@playwright/test';
 import { TestContext } from '../helpers/test-context.js';
 import { DataValidator } from '../helpers/data-validation.js';
@@ -634,7 +640,7 @@ test.describe('Agent Interaction', () => {
   let dataValidator;
   
   test.beforeEach(async ({ page }) => {
-    testContext = new TestContext(page, 'agent-interaction');
+    testContext = new TestContext(page, '003-agent-interaction');
     dataValidator = new DataValidator(page);
     
     await page.goto('https://localhost:5194');
@@ -835,10 +841,10 @@ export default defineConfig({
 
 ### 3. Screenshot Management
 
-- **Consistent naming**: Use descriptive, sequential names (step-1-initial-state.png)
+- **Consistent naming**: Use numbered subdirectories (001/, 002/, 003/) with screenshot.png
 - **Capture full context**: Use fullPage screenshots by default
 - **Highlight key elements**: Use element screenshots for specific components
-- **Organize by test**: Keep screenshots in test-specific directories
+- **Organize by test**: Keep screenshots in test-specific numbered directories (001-test-name/)
 
 ### 4. Report Generation
 
@@ -996,13 +1002,11 @@ jobs:
 Here's what a generated README.md report would look like:
 
 ```markdown
-# Test Report: tab-management
+# Test Report: 001-tab-management
 
 **Generated**: 2024-11-18T04:58:58.513Z
 
 **Total Steps**: 3
-
----
 
 ## Step 1: initial-state
 
@@ -1010,7 +1014,7 @@ Here's what a generated README.md report would look like:
 
 ### Screenshot
 
-![initial-state](step-1-initial-state.png)
+![initial-state](001/screenshot.png)
 
 ### Expected Outcomes
 
@@ -1020,7 +1024,6 @@ Here's what a generated README.md report would look like:
 
 ### Data Validation
 
-```json
 {
   "tabCount": 1,
   "tabs": [
@@ -1033,9 +1036,6 @@ Here's what a generated README.md report would look like:
     }
   ]
 }
-```
-
----
 
 ## Step 2: new-tab-created
 
@@ -1043,7 +1043,7 @@ Here's what a generated README.md report would look like:
 
 ### Screenshot
 
-![new-tab-created](step-2-new-tab-created.png)
+![new-tab-created](002/screenshot.png)
 
 ### Expected Outcomes
 
@@ -1053,7 +1053,6 @@ Here's what a generated README.md report would look like:
 
 ### Data Validation
 
-```json
 {
   "tabCount": 2,
   "activeTab": "tab_1234567890",
@@ -1074,9 +1073,6 @@ Here's what a generated README.md report would look like:
     }
   ]
 }
-```
-
----
 
 ## Step 3: verification-complete
 
@@ -1084,15 +1080,13 @@ Here's what a generated README.md report would look like:
 
 ### Screenshot
 
-![verification-complete](step-3-verification-complete.png)
+![verification-complete](003/screenshot.png)
 
 ### Expected Outcomes
 
 - ✓ 2 tabs visible in sidebar
 - ✓ 2 tab documents in PouchDB
 - ✓ New tab is marked as active
-
----
 ```
 
 ## Implementation Guidelines for Agents
@@ -1109,27 +1103,6 @@ When implementing E2E tests following this strategy, agents should:
 8. **Keep tests independent**: Each test should set up its own state
 9. **Document expectations**: Clearly list expected outcomes for each step
 10. **Review generated reports**: Manually review the generated README.md and screenshots
-
-## Future Enhancements
-
-### Planned Improvements
-
-1. **Video Recording**: Capture video of entire test runs
-2. **Interactive Reports**: HTML reports with expandable sections
-3. **Diff Detection**: Compare screenshots across test runs
-4. **Performance Metrics**: Track timing for each step
-5. **Accessibility Testing**: Integrate automated a11y checks
-6. **Visual Regression**: Compare screenshots to baseline
-7. **Network Monitoring**: Capture and validate network requests
-8. **Console Validation**: Check for unexpected console errors/warnings
-
-### Advanced Patterns
-
-1. **Page Object Model**: For complex, reusable page interactions
-2. **Custom Fixtures**: Test-specific setup and teardown
-3. **Parallel Execution**: Safe parallel test execution strategies
-4. **Test Retry Logic**: Smart retry mechanisms for flaky tests
-5. **Data-Driven Tests**: Parameterized tests with multiple data sets
 
 ## Conclusion
 
