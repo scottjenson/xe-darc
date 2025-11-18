@@ -1,0 +1,10 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Playwright
+playwright-report/
+test-results/
+
+# Reports are generated and should be committed to show test results
+# reports/ should be tracked to provide visual documentation
