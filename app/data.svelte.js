@@ -8,6 +8,7 @@ import { tick } from 'svelte'
 // import indexeddb from 'pouchdb-adapter-indexeddb'
 // PouchDB.plugin(indexeddb)
 import permissionTypes from './lib/resourceTypes.js'
+import { initClipboardMonitor } from './lib/clipboardMonitor.js'
 
 import { colors as projectColors } from './lib/utils.js'
 
@@ -62,6 +63,8 @@ db.bulkDocs(bootstrap).then(async (res) => {
         index: { fields: sortOrder }
     }).then(() => {
         refresh()
+        // Initialize clipboard monitor after database is ready
+        initClipboardMonitor(db)
     })
 
     const docsToUpdate = []
@@ -1157,5 +1160,37 @@ export default {
         } else {
             return false
         }
+    }
+}
+
+/**
+ * Get clipboard history entries
+ * @param {number} limit - Maximum number of entries to retrieve
+ * @returns {Promise<Array>} Array of clipboard documents
+ */
+export async function getClipboardHistory(limit = 100) {
+    try {
+        const result = await db.find({
+            selector: { type: 'clipboard' },
+            sort: [{ timestamp: 'desc' }],
+            limit
+        })
+        return result.docs
+    } catch (error) {
+        console.error('Failed to get clipboard history:', error)
+        return []
+    }
+}
+
+/**
+ * Delete a clipboard entry
+ * @param {string} id - The document ID to delete
+ */
+export async function deleteClipboardEntry(id) {
+    try {
+        const doc = await db.get(id)
+        await db.remove(doc)
+    } catch (error) {
+        console.error('Failed to delete clipboard entry:', error)
     }
 }
