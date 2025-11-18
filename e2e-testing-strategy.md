@@ -35,11 +35,10 @@ e2e-tests/
 ├── reports/                        # Generated test reports
 │   ├── 001-tab-management/
 │   │   ├── README.md
-│   │   ├── 001/
-│   │   │   └── screenshot.png
-│   │   ├── 002/
-│   │   │   └── screenshot.png
-│   │   └── ...
+│   │   └── screenshots/
+│   │       ├── 001-screenshot.png
+│   │       ├── 002-screenshot.png
+│   │       └── 003-screenshot.png
 │   └── 002-sidebar-navigation/
 │       └── ...
 ├── playwright.config.js            # Playwright configuration
@@ -179,13 +178,12 @@ export class TestContext {
       description: details.description,
       expectations: details.expectations,
       timestamp: new Date().toISOString(),
-      screenshot: `${stepNumber}/screenshot.png`,
-      stepDir: `${stepNumber}`
+      screenshot: `screenshots/${stepNumber}-screenshot.png`
     };
     
-    // Create step directory
-    const stepPath = `${this.screenshotDir}/${step.stepDir}`;
-    await fs.mkdir(stepPath, { recursive: true });
+    // Create screenshots directory
+    const screenshotPath = `${this.screenshotDir}/screenshots`;
+    await fs.mkdir(screenshotPath, { recursive: true });
     
     // Capture screenshot
     await this.page.screenshot({
@@ -841,10 +839,10 @@ export default defineConfig({
 
 ### 3. Screenshot Management
 
-- **Consistent naming**: Use numbered subdirectories (001/, 002/, 003/) with screenshot.png
+- **Consistent naming**: Use numbered files (001-screenshot.png, 002-screenshot.png, 003-screenshot.png) in a screenshots/ directory
 - **Capture full context**: Use fullPage screenshots by default
 - **Highlight key elements**: Use element screenshots for specific components
-- **Organize by test**: Keep screenshots in test-specific numbered directories (001-test-name/)
+- **Organize by test**: Keep screenshots in test-specific directories (001-test-name/screenshots/)
 
 ### 4. Report Generation
 
@@ -1014,7 +1012,7 @@ Here's what a generated README.md report would look like:
 
 ### Screenshot
 
-![initial-state](001/screenshot.png)
+![initial-state](screenshots/001-screenshot.png)
 
 ### Expected Outcomes
 
@@ -1043,7 +1041,7 @@ Here's what a generated README.md report would look like:
 
 ### Screenshot
 
-![new-tab-created](002/screenshot.png)
+![new-tab-created](screenshots/002-screenshot.png)
 
 ### Expected Outcomes
 
@@ -1080,7 +1078,7 @@ Here's what a generated README.md report would look like:
 
 ### Screenshot
 
-![verification-complete](003/screenshot.png)
+![verification-complete](screenshots/003-screenshot.png)
 
 ### Expected Outcomes
 
