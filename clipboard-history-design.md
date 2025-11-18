@@ -6,11 +6,7 @@ This document outlines the design for a new clipboard history feature in Darc Br
 
 ## Problem Statement
 
-Users frequently need to reference previously copied text but lose access to it once a new item is copied to the clipboard. A clipboard history feature would allow users to:
-- Review previously copied items
-- Re-copy items from history
-- Search through clipboard history
-- Manage clipboard entries (delete, pin, categorize)
+The clipboard history feature will capture every copy operation and store the copied content in a dedicated sidebar pane. While users can review and re-copy previously copied items, the long-term goal is to use this clipboard history to help users complete their browsing tasks more effectively. For now, the focus is on building the foundational capture and display functionality.
 
 ## Design Goals
 
@@ -27,8 +23,7 @@ Users frequently need to reference previously copied text but lose access to it 
 ```
 ClipboardHistory.svelte (New Component)
 ├── RightSidebar.svelte (Wrapper - existing)
-├── ClipboardHistoryItem.svelte (New Component)
-└── ClipboardSearchBar.svelte (New Component)
+└── ClipboardHistoryItem.svelte (New Component)
 ```
 
 ### Data Flow
@@ -189,398 +184,168 @@ class ClipboardMonitor {
 
 **Recommended**: Implement Option A primarily, with Option C as a complement for edge cases.
 
-### 3. User Interface
+### 3. User Interface Mockups
+
+#### Main Sidebar View
+
+The clipboard history will appear as a right sidebar panel, matching the existing Darc sidebar aesthetic with a dark theme and clean typography.
+
+```
+┌─────────────────────────────────────────┐
+│  CLIPBOARD HISTORY                  ✕   │
+├─────────────────────────────────────────┤
+│                                         │
+│  ┌─ Filter Buttons ─────────────────┐  │
+│  │ [All] [Text] [Code] [URLs] [📌]  │  │
+│  └───────────────────────────────────┘  │
+│                                         │
+│  ┌─ Settings ──────────────────────┐   │
+│  │ ☑ Monitor clipboard              │   │
+│  │ Max entries: [1000 ▾]            │   │
+│  │ [Clear All History]              │   │
+│  └───────────────────────────────────┘  │
+│                                         │
+│  ── Today ──                            │
+│  ┌───────────────────────────────────┐ │
+│  │ 2:30 PM  github.com           📋 📌│ │
+│  │ const handleCopy = async () => { │ │
+│  │ await navigator.clipboard...     │ │
+│  └───────────────────────────────────┘ │
+│                                         │
+│  ┌───────────────────────────────────┐ │
+│  │ 2:15 PM  example.com          📋 🗑│ │
+│  │ Lorem ipsum dolor sit amet...    │ │
+│  └───────────────────────────────────┘ │
+│                                         │
+│  ── Yesterday ──                        │
+│  ┌───────────────────────────────────┐ │
+│  │ 4:45 PM  stackoverflow.com    📋 📌│ │
+│  │ function debounce(func, wait) {  │ │
+│  └───────────────────────────────────┘ │
+│                                         │
+│  ┌───────────────────────────────────┐ │
+│  │ 11:20 AM docs.darc.io         📋 🗑│ │
+│  │ https://docs.darc.io/api/...     │ │
+│  └───────────────────────────────────┘ │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+#### Empty State View
+
+When no clipboard history exists yet:
+
+```
+┌─────────────────────────────────────────┐
+│  CLIPBOARD HISTORY                  ✕   │
+├─────────────────────────────────────────┤
+│                                         │
+│                                         │
+│              📋                         │
+│                                         │
+│      No clipboard history yet           │
+│                                         │
+│   Copy text to start building your      │
+│           history                       │
+│                                         │
+│                                         │
+│                                         │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+#### Individual Clipboard Item
+
+Each clipboard entry displays:
+
+```
+┌─────────────────────────────────────────┐
+│ ⏰ 2:30 PM    🌐 github.com/user    📋 📌 🗑│
+├─────────────────────────────────────────┤
+│                                         │
+│  const handleCopy = async () => {       │
+│    const text = await navigator         │
+│    .clipboard.readText()                │
+│    console.log(text)                    │
+│  }                                      │
+│                                         │
+│  #javascript #code                      │
+└─────────────────────────────────────────┘
+```
+
+Visual elements:
+- **Timestamp**: Relative time (e.g., "2:30 PM", "5 mins ago")
+- **Source**: Favicon + origin/page title where content was copied
+- **Actions**: Copy (primary), Pin, Delete
+- **Content**: Truncated preview with smart formatting
+- **Tags**: Auto-detected or user-added tags
+- **Pinned indicator**: Gold pin icon for pinned items
 
 #### Sidebar Button
 
-**Location**: `app/App.svelte` - right sidebar button array
+The clipboard history button appears in the right sidebar button array:
 
-Add a new button alongside existing sidebar buttons:
-```svelte
-<button class="sidebar-button" 
-        class:active={openSidebars.has('clipboardHistory')}
-        title="Clipboard History" 
-        aria-label="Clipboard History"
-        onmousedown={() => toggleSidebar('clipboardHistory')}>
-    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
-    </svg>
-</button>
+```
+Right Sidebar Buttons:
+┌────┐
+│ 🎤 │  Voice Agent
+├────┤
+│ ✨ │  AI Agent
+├────┤
+│ ⏰ │  Activity
+├────┤
+│ 🛡️ │  Resources
+├────┤
+│ 📋 │  Clipboard History ← NEW
+├────┤
+│ </> │ User Mods
+├────┤
+│ ⚙️ │  Settings
+└────┘
 ```
 
-#### ClipboardHistory.svelte Component
+#### Filter States
 
-**Location**: `app/components/ClipboardHistory.svelte`
+Filters change the displayed items:
 
-##### Structure:
-```svelte
-<RightSidebar 
-    title="Clipboard History"
-    {onClose}
-    {openSidebars}
-    {switchToResources}
-    {switchToSettings}
-    ...
->
-    <!-- Search and Filter Bar -->
-    <div class="clipboard-controls">
-        <input 
-            type="search" 
-            placeholder="Search clipboard history..."
-            bind:value={searchQuery}
-        />
-        <div class="filter-buttons">
-            <button class:active={filter === 'all'}>All</button>
-            <button class:active={filter === 'text'}>Text</button>
-            <button class:active={filter === 'code'}>Code</button>
-            <button class:active={filter === 'urls'}>URLs</button>
-            <button class:active={filter === 'pinned'}>Pinned</button>
-        </div>
-    </div>
+- **All**: Shows all clipboard entries
+- **Text**: Only plain text entries
+- **Code**: Entries detected as code (syntax highlighting)
+- **URLs**: Entries that are URLs
+- **📌 (Pinned)**: Only pinned items shown at top
 
-    <!-- Settings and Actions -->
-    <div class="clipboard-settings">
-        <div class="setting-row">
-            <label>
-                <input type="checkbox" bind:checked={monitorEnabled} />
-                Monitor clipboard
-            </label>
-        </div>
-        <div class="setting-row">
-            <label>Max entries: 
-                <select bind:value={maxEntries}>
-                    <option value={100}>100</option>
-                    <option value={500}>500</option>
-                    <option value={1000}>1000</option>
-                    <option value={5000}>5000</option>
-                </select>
-            </label>
-        </div>
-        <button class="clear-all-button" onclick={handleClearAll}>
-            Clear All
-        </button>
-    </div>
+#### Interaction States
 
-    <!-- Clipboard Items List -->
-    <div class="clipboard-items">
-        {#if filteredItems.length === 0}
-            <div class="empty-state">
-                <svg>...</svg>
-                <p>No clipboard history yet</p>
-                <p class="subtitle">Copy text to start building your history</p>
-            </div>
-        {:else}
-            <div class="items-list">
-                {#each groupedItems as group (group.date)}
-                    <div class="date-group">
-                        <div class="date-header">{group.label}</div>
-                        {#each group.items as item (item._id)}
-                            <ClipboardHistoryItem 
-                                {item}
-                                onCopy={() => handleCopy(item)}
-                                onPin={() => handlePin(item)}
-                                onDelete={() => handleDelete(item)}
-                                onEdit={() => handleEdit(item)}
-                            />
-                        {/each}
-                    </div>
-                {/each}
-            </div>
-        {/if}
-    </div>
-</RightSidebar>
-```
-
-##### Features:
-- **Search**: Full-text search across all clipboard entries
-- **Filters**: 
-  - All items
-  - Text only
-  - Code (detected by syntax patterns)
-  - URLs (detected by URL patterns)
-  - Pinned items
-- **Grouping**: Group items by date (Today, Yesterday, Last 7 Days, etc.)
-- **Actions per item**:
-  - Copy to clipboard (primary action)
-  - Pin/Unpin
-  - Delete
-  - Add notes
-  - View full content (for large items)
-
-#### ClipboardHistoryItem.svelte Component
-
-**Location**: `app/components/ClipboardHistoryItem.svelte`
-
-##### Structure:
-```svelte
-<div class="clipboard-item" class:pinned={item.userMetadata.pinned}>
-    <!-- Item Header -->
-    <div class="item-header">
-        <div class="item-metadata">
-            <span class="timestamp">{formatTimestamp(item.metadata.timestamp)}</span>
-            {#if item.metadata.source}
-                <span class="source">
-                    <Favicon url={item.metadata.source.origin} />
-                    {item.metadata.source.title || item.metadata.source.origin}
-                </span>
-            {/if}
-        </div>
-        <div class="item-actions">
-            <button 
-                class="action-button"
-                title="Copy"
-                onclick={() => onCopy()}>
-                <svg><!-- copy icon --></svg>
-            </button>
-            <button 
-                class="action-button"
-                class:active={item.userMetadata.pinned}
-                title={item.userMetadata.pinned ? 'Unpin' : 'Pin'}
-                onclick={() => onPin()}>
-                <svg><!-- pin icon --></svg>
-            </button>
-            <button 
-                class="action-button"
-                title="Delete"
-                onclick={() => onDelete()}>
-                <svg><!-- delete icon --></svg>
-            </button>
-        </div>
-    </div>
-
-    <!-- Content Preview -->
-    <div class="item-content">
-        {#if item.metadata.contentType.startsWith('text/')}
-            <div class="text-preview" class:code={isCodeContent(item)}>
-                {item.metadata.preview || item.content.text}
-            </div>
-        {:else if item.metadata.contentType.startsWith('image/')}
-            <img src={item.content.dataUrl} alt="Clipboard image" />
-        {/if}
-    </div>
-
-    <!-- Tags and Categories -->
-    {#if item.userMetadata.tags?.length > 0}
-        <div class="item-tags">
-            {#each item.userMetadata.tags as tag}
-                <span class="tag">{tag}</span>
-            {/each}
-        </div>
-    {/if}
-
-    <!-- User Notes -->
-    {#if item.userMetadata.notes}
-        <div class="item-notes">
-            {item.userMetadata.notes}
-        </div>
-    {/if}
-</div>
-```
+**Hover State**: Item background lightens, action buttons become visible
+**Active/Selected**: Item has subtle highlight border
+**Pinned Items**: Gold pin icon, always appear at top regardless of date
+**Copy Success**: Brief flash animation + toast notification "Copied!"
 
 ### 4. Integration Points
 
-#### 4.1 App.svelte Modifications
+#### 4.1 App.svelte
+- Add clipboard history to `openSidebars` Set
+- Create `switchToClipboardHistory()` function
+- Add sidebar panel rendering with conditional display
+- Add clipboard icon button to right sidebar button array
 
-**Add state management**:
-```javascript
-// Add to openSidebars Set
-// Line ~112
-let openSidebars = $state(new Set())
+#### 4.2 data.svelte.js
+- Import and initialize ClipboardMonitor service
+- Add clipboard document type to PouchDB schema
+- Create query functions for retrieving clipboard history
+- Handle clipboard entries in refresh() function
 
-// Add switch function
-// Line ~1603
-const switchToClipboardHistory = () => switchToSidebar('clipboardHistory')
+#### 4.3 RightSidebar.svelte
+- Add clipboard history navigation button
+- Pass switchToClipboardHistory prop
+- Update icon set with clipboard icon
 
-// Add to toggleSidebar
-// Ensure 'clipboardHistory' is handled like other sidebars
-```
+#### 4.4 Components to Create
+- `app/components/ClipboardHistory.svelte` - Main sidebar component
+- `app/components/ClipboardHistoryItem.svelte` - Individual entry display
+- `app/lib/clipboardMonitor.js` - Clipboard monitoring service
 
-**Add sidebar rendering**:
-```svelte
-<!-- Line ~3894, in sidebar rendering section -->
-{#if openSidebars.has('clipboardHistory')}
-    <div class="sidebar-panel" 
-         class:new-panel={openSidebars.has('clipboardHistory') && 
-                         !prevOpenSidebars.has('clipboardHistory') && 
-                         !isSwitchingSidebars && 
-                         !isWindowResizing}>
-        <ClipboardHistory 
-            onClose={() => closeSidebar('clipboardHistory')}
-            {openSidebars}
-            {switchToResources} 
-            {switchToSettings}
-            {switchToUserMods}
-            {switchToActivity}
-            switchToAgent={switchToAIAgent}
-            {switchToDevTools}
-            switchToClipboardHistory={switchToClipboardHistory}
-            {devModeEnabled} />
-    </div>
-{/if}
-```
-
-#### 4.2 data.svelte.js Modifications
-
-**Add clipboard monitor initialization**:
-```javascript
-// After PouchDB initialization, line ~25
-import ClipboardMonitor from './lib/clipboardMonitor.js'
-
-// Initialize clipboard monitor, line ~100
-const clipboardMonitor = new ClipboardMonitor(db, {
-  enabled: localStorage.getItem('clipboardMonitorEnabled') !== 'false',
-  maxEntries: parseInt(localStorage.getItem('clipboardMaxEntries') || '1000'),
-  maxEntrySize: 1024 * 1024, // 1MB
-  deduplicateWindow: 5000
-})
-
-clipboardMonitor.init()
-
-// Export for external access
-export { clipboardMonitor }
-```
-
-**Add clipboard-specific queries**:
-```javascript
-// Add function to query clipboard history
-async function getClipboardHistory(options = {}) {
-  const {
-    limit = 50,
-    skip = 0,
-    filter = 'all',
-    searchQuery = '',
-    startDate = null,
-    endDate = null
-  } = options
-
-  const selector = {
-    type: 'clipboard',
-    'userMetadata.archived': { $ne: true }
-  }
-
-  if (filter === 'pinned') {
-    selector['userMetadata.pinned'] = true
-  }
-
-  if (startDate || endDate) {
-    selector['metadata.timestamp'] = {}
-    if (startDate) selector['metadata.timestamp'].$gte = startDate
-    if (endDate) selector['metadata.timestamp'].$lte = endDate
-  }
-
-  const result = await db.find({
-    selector,
-    sort: [
-      { 'userMetadata.pinned': 'desc' },
-      { 'metadata.timestamp': 'desc' }
-    ],
-    limit,
-    skip
-  })
-
-  // Apply client-side search filter if needed
-  if (searchQuery) {
-    result.docs = result.docs.filter(doc => 
-      doc.content.text?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.metadata.source?.title?.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  }
-
-  return result.docs
-}
-```
-
-#### 4.3 RightSidebar.svelte Modifications
-
-**Add navigation button**:
-```svelte
-<!-- Line ~17, add after existing nav buttons -->
-<button class="sidebar-nav-button" 
-        class:active={openSidebars.has('clipboardHistory')}
-        title="Clipboard History" 
-        aria-label="Clipboard History"
-        onmousedown={switchToClipboardHistory}>
-    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
-    </svg>
-</button>
-```
-
-**Update component props**:
-```svelte
-<!-- Line ~2, add to props -->
-let { 
-    ...,
-    switchToClipboardHistory
-} = $props()
-```
-
-### 5. Settings Integration
-
-Add clipboard history settings to the Settings component:
-
-**Location**: `app/components/Settings.svelte`
-
-```svelte
-<!-- Add new settings section -->
-<div class="setting-section">
-    <h4>Clipboard History</h4>
-    
-    <div class="setting-row">
-        <label>
-            <input 
-                type="checkbox" 
-                bind:checked={clipboardMonitorEnabled}
-                onchange={handleClipboardMonitorToggle}
-            />
-            Enable clipboard monitoring
-        </label>
-        <p class="setting-description">
-            Automatically save copied text to clipboard history
-        </p>
-    </div>
-
-    <div class="setting-row">
-        <label for="clipboard-max-entries">Maximum entries</label>
-        <select 
-            id="clipboard-max-entries"
-            bind:value={clipboardMaxEntries}
-            onchange={handleMaxEntriesChange}
-        >
-            <option value="100">100</option>
-            <option value="500">500</option>
-            <option value="1000">1,000</option>
-            <option value="5000">5,000</option>
-            <option value="10000">10,000</option>
-        </select>
-        <p class="setting-description">
-            Older entries will be automatically deleted
-        </p>
-    </div>
-
-    <div class="setting-row">
-        <label for="clipboard-retention">Retention period</label>
-        <select id="clipboard-retention" bind:value={clipboardRetention}>
-            <option value="7">7 days</option>
-            <option value="30">30 days</option>
-            <option value="90">90 days</option>
-            <option value="365">1 year</option>
-            <option value="-1">Forever</option>
-        </select>
-    </div>
-
-    <div class="setting-row">
-        <button 
-            class="danger-button"
-            onclick={handleClearClipboardHistory}
-        >
-            Clear All Clipboard History
-        </button>
-    </div>
-</div>
-```
-
-### 6. Performance Considerations
+### 5. Performance Considerations
 
 #### Storage Management
 - **Max Entry Size**: Limit individual clipboard entries to 1MB
@@ -599,25 +364,10 @@ Add clipboard history settings to the Settings component:
 - **Bulk Operations**: Use bulkDocs for batch operations
 - **Debouncing**: Debounce clipboard monitoring to avoid excessive writes
 
-### 7. Privacy and Security
-
-#### Privacy Features
-- **Local Storage Only**: All clipboard data stays in IndexedDB
-- **No Sync**: Clipboard history is not synced to cloud by default
-- **User Control**: Easy toggle to disable monitoring
-- **Clear History**: One-click to clear all history
-
-#### Security Considerations
-- **Sensitive Data**: Consider adding auto-detection for sensitive patterns (passwords, tokens)
-- **Redaction Option**: Allow users to manually redact sensitive entries
-- **Permissions**: Request clipboard-read permission explicitly
-- **CSP Compliance**: Ensure all clipboard operations comply with Content Security Policy
-
-### 8. User Experience
+### 6. User Experience
 
 #### Visual Feedback
 - **Copy Success**: Brief toast/notification when copying from history
-- **Search Results**: Highlight search terms in results
 - **Loading States**: Show skeleton loaders while fetching history
 - **Empty States**: Helpful messaging when history is empty
 
@@ -626,7 +376,6 @@ Add clipboard history settings to the Settings component:
 - `Enter` on selected item: Copy to clipboard
 - `Delete` on selected item: Delete entry
 - `Ctrl/Cmd + P` on selected item: Pin/unpin entry
-- `/` or `Ctrl/Cmd + F`: Focus search box
 
 #### Accessibility
 - **ARIA Labels**: All interactive elements have proper labels
@@ -634,7 +383,7 @@ Add clipboard history settings to the Settings component:
 - **Focus Management**: Proper focus handling when opening/closing
 - **Screen Reader**: Announce state changes and actions
 
-### 9. Future Enhancements
+### 7. Future Enhancements
 
 #### Phase 2 Features
 1. **Rich Content Support**:
@@ -652,20 +401,16 @@ Add clipboard history settings to the Settings component:
    - Tags and labels
    - Favorites/starred items
 
-4. **Advanced Search**:
-   - Regex search support
-   - Filter by date range
-   - Filter by source origin
+4. **Task Completion Assistance** (Long-term goal):
+   - Use clipboard history to understand user intent
+   - Suggest next steps based on copied content
+   - Context-aware recommendations
+   - Integration with agent for clipboard-aware actions
 
 5. **Sync and Backup**:
    - Optional cloud sync via CouchDB
    - Export/import clipboard history
    - Sync across Darc instances
-
-6. **Integration**:
-   - Share clipboard items with other tabs
-   - Integration with agent for clipboard-aware actions
-   - Clipboard item suggestions based on context
 
 ## Implementation Plan
 
@@ -679,17 +424,15 @@ Add clipboard history settings to the Settings component:
 7. Implement copy event detection
 
 ### Phase 2: Enhanced UX
-1. Add search functionality
-2. Implement filters and grouping
-3. Add keyboard shortcuts
-4. Improve visual design
-5. Add animations and transitions
+1. Implement filters and grouping
+2. Add keyboard shortcuts
+3. Improve visual design
+4. Add animations and transitions
 
 ### Phase 3: Advanced Features
 1. Image clipboard support
 2. Smart categorization
-3. Advanced search
-4. Export/import functionality
+3. Export/import functionality
 
 ## Testing Strategy
 
@@ -706,11 +449,15 @@ Add clipboard history settings to the Settings component:
 - Settings persistence
 
 ### E2E Tests
+
+E2E tests will use Playwright to capture screenshots of the feature in action, which will be linked in a README.md for easy validation. This will create a visual user story showing:
 - Copy text from various sources
-- Search and filter clipboard history
+- Filter clipboard history
 - Pin/unpin items
 - Delete items
 - Clear all history
+
+A detailed end-to-end testing document will be created in the future specifying the complete screenshot-based validation process.
 
 ### Manual Testing
 - Test in different origins (HTTP, HTTPS, isolated-app://)
@@ -722,7 +469,6 @@ Add clipboard history settings to the Settings component:
 ## Success Metrics
 
 - Clipboard entries successfully captured: >95%
-- Search response time: <100ms for 1000 entries
 - Memory overhead: <50MB for 1000 entries
 - User adoption: Track usage via settings
 - Performance: No noticeable impact on copy operations
