@@ -42,151 +42,9 @@ ClipboardHistory Component
 UI Display
 ```
 
-## Detailed Design
+## User Interface Mockups
 
-### 1. Data Model
-
-#### Document Schema (PouchDB)
-
-```javascript
-{
-  _id: 'clipboard:${timestamp}_${uuid}',
-  type: 'clipboard',
-  content: {
-    text: 'copied text content',
-    html: '<p>optional html content</p>', // if available
-    richText: {...},  // optional structured data
-  },
-  metadata: {
-    source: {
-      url: 'https://example.com',
-      origin: 'https://example.com',
-      tabId: 'darc:tab_...',
-      title: 'Page Title'
-    },
-    timestamp: 1234567890,
-    contentType: 'text/plain', // or 'text/html', 'image/png', etc.
-    contentLength: 123,
-    preview: 'First 100 chars...' // truncated preview
-  },
-  userMetadata: {
-    pinned: false,
-    archived: false,
-    tags: ['work', 'code'], // optional user tags
-    category: 'code', // auto-detected or user-set
-    favorite: false,
-    notes: '' // optional user notes
-  },
-  created: 1234567890,
-  modified: 1234567890
-}
-```
-
-#### Database Index
-
-Create a PouchDB index for efficient querying:
-```javascript
-db.createIndex({
-  index: { 
-    fields: ['type', 'metadata.timestamp', 'userMetadata.pinned', 'userMetadata.archived'] 
-  }
-})
-```
-
-### 2. Clipboard Monitor Service
-
-**Location**: `app/lib/clipboardMonitor.js`
-
-#### Responsibilities:
-- Listen for clipboard events
-- Extract clipboard content
-- Store entries in PouchDB
-- Handle different content types (text, HTML, images)
-- Deduplicate identical consecutive copies
-- Manage storage limits
-
-#### Implementation Approach:
-
-```javascript
-class ClipboardMonitor {
-  constructor(db, options = {}) {
-    this.db = db
-    this.enabled = options.enabled ?? true
-    this.maxEntries = options.maxEntries ?? 1000
-    this.maxEntrySize = options.maxEntrySize ?? 1024 * 1024 // 1MB
-    this.deduplicateWindow = options.deduplicateWindow ?? 5000 // 5 seconds
-    this.lastCopyHash = null
-    this.lastCopyTime = 0
-  }
-
-  init() {
-    // Use multiple detection methods for copy events
-    this.attachEventListeners()
-  }
-
-  attachEventListeners() {
-    // Method 1: Listen to copy events on document
-    document.addEventListener('copy', this.handleCopyEvent.bind(this))
-    
-    // Method 2: Poll clipboard periodically (fallback)
-    // Only if permissions allow
-    this.startPolling()
-    
-    // Method 3: Listen to keyboard shortcuts
-    this.attachKeyboardListener()
-  }
-
-  async handleCopyEvent(event) {
-    // Get clipboard data from the event
-    // Determine source context
-    // Store in database
-  }
-
-  async pollClipboard() {
-    // Read current clipboard content
-    // Compare with last known content
-    // If different, create new entry
-  }
-
-  async storeClipboardEntry(content, metadata) {
-    // Create document
-    // Check deduplication
-    // Store in PouchDB
-    // Trigger cleanup if needed
-  }
-
-  async cleanup() {
-    // Remove old entries beyond maxEntries
-    // Respect pinned items
-  }
-}
-```
-
-#### Detection Strategy:
-
-**Option A: Event-based (Preferred)**
-- Listen to `copy` events on the document
-- Use `event.clipboardData` to access copied content
-- Most reliable and performant
-- Works for Ctrl+C/Cmd+C and context menu copies
-
-**Option B: Clipboard API Polling (Fallback)**
-- Periodically check `navigator.clipboard.readText()`
-- Useful when event-based detection fails
-- Requires clipboard-read permission
-- Higher resource usage
-
-**Option C: Keyboard Shortcut Interception**
-- Listen for Ctrl+C/Cmd+C keyboard events
-- Trigger clipboard read after shortcut
-- Complement to event-based approach
-- Misses context menu copies
-
-**Recommended**: Implement Option A primarily, with Option C as a complement for edge cases.
-
-### 3. User Interface Mockups
-
-#### Main Sidebar View
+### Main Sidebar View
 
 The clipboard history will appear as a right sidebar panel, matching the existing Darc sidebar aesthetic with a dark theme and clean typography.
 
@@ -194,16 +52,6 @@ The clipboard history will appear as a right sidebar panel, matching the existin
 ┌─────────────────────────────────────────┐
 │  CLIPBOARD HISTORY                  ✕   │
 ├─────────────────────────────────────────┤
-│                                         │
-│  ┌─ Filter Buttons ─────────────────┐  │
-│  │ [All] [Text] [Code] [URLs] [📌]  │  │
-│  └───────────────────────────────────┘  │
-│                                         │
-│  ┌─ Settings ──────────────────────┐   │
-│  │ ☑ Monitor clipboard              │   │
-│  │ Max entries: [1000 ▾]            │   │
-│  │ [Clear All History]              │   │
-│  └───────────────────────────────────┘  │
 │                                         │
 │  ── Today ──                            │
 │  ┌───────────────────────────────────┐ │
@@ -231,7 +79,7 @@ The clipboard history will appear as a right sidebar panel, matching the existin
 └─────────────────────────────────────────┘
 ```
 
-#### Empty State View
+### Empty State View
 
 When no clipboard history exists yet:
 
@@ -254,7 +102,7 @@ When no clipboard history exists yet:
 └─────────────────────────────────────────┘
 ```
 
-#### Individual Clipboard Item
+### Individual Clipboard Item
 
 Each clipboard entry displays:
 
@@ -281,7 +129,7 @@ Visual elements:
 - **Tags**: Auto-detected or user-added tags
 - **Pinned indicator**: Gold pin icon for pinned items
 
-#### Sidebar Button
+### Sidebar Button
 
 The clipboard history button appears in the right sidebar button array:
 
@@ -304,113 +152,74 @@ Right Sidebar Buttons:
 └────┘
 ```
 
-#### Filter States
-
-Filters change the displayed items:
-
-- **All**: Shows all clipboard entries
-- **Text**: Only plain text entries
-- **Code**: Entries detected as code (syntax highlighting)
-- **URLs**: Entries that are URLs
-- **📌 (Pinned)**: Only pinned items shown at top
-
-#### Interaction States
+### Interaction States
 
 **Hover State**: Item background lightens, action buttons become visible
 **Active/Selected**: Item has subtle highlight border
 **Pinned Items**: Gold pin icon, always appear at top regardless of date
 **Copy Success**: Brief flash animation + toast notification "Copied!"
 
-### 4. Integration Points
+## Integration Points
 
-#### 4.1 App.svelte
+### App.svelte
 - Add clipboard history to `openSidebars` Set
 - Create `switchToClipboardHistory()` function
 - Add sidebar panel rendering with conditional display
 - Add clipboard icon button to right sidebar button array
 
-#### 4.2 data.svelte.js
+### data.svelte.js
 - Import and initialize ClipboardMonitor service
 - Add clipboard document type to PouchDB schema
 - Create query functions for retrieving clipboard history
 - Handle clipboard entries in refresh() function
 
-#### 4.3 RightSidebar.svelte
+### RightSidebar.svelte
 - Add clipboard history navigation button
 - Pass switchToClipboardHistory prop
 - Update icon set with clipboard icon
 
-#### 4.4 Components to Create
+### Components to Create
 - `app/components/ClipboardHistory.svelte` - Main sidebar component
 - `app/components/ClipboardHistoryItem.svelte` - Individual entry display
 - `app/lib/clipboardMonitor.js` - Clipboard monitoring service
 
-### 5. Performance Considerations
+## Performance Considerations
 
-#### Storage Management
+### Storage Management
 - **Max Entry Size**: Limit individual clipboard entries to 1MB
 - **Max Total Entries**: Default to 1000 entries (configurable)
 - **Automatic Cleanup**: Remove oldest entries when limit is reached
 - **Respect Pinned Items**: Never auto-delete pinned entries
 
-#### Memory Management
+### Memory Management
 - **Lazy Loading**: Only load clipboard items when sidebar is opened
 - **Virtual Scrolling**: For large histories, render only visible items
 - **Content Preview**: Store truncated previews (100 chars) for quick display
 - **Full Content**: Load on demand when user expands an item
 
-#### Database Optimization
+### Database Optimization
 - **Indexes**: Create efficient indexes for common queries
 - **Bulk Operations**: Use bulkDocs for batch operations
 - **Debouncing**: Debounce clipboard monitoring to avoid excessive writes
 
-### 6. User Experience
+## User Experience
 
-#### Visual Feedback
+### Visual Feedback
 - **Copy Success**: Brief toast/notification when copying from history
 - **Loading States**: Show skeleton loaders while fetching history
 - **Empty States**: Helpful messaging when history is empty
 
-#### Keyboard Shortcuts
+### Keyboard Shortcuts
 - `Ctrl/Cmd + Shift + V`: Open clipboard history sidebar
 - `Enter` on selected item: Copy to clipboard
 - `Delete` on selected item: Delete entry
 - `Ctrl/Cmd + P` on selected item: Pin/unpin entry
 
-#### Accessibility
+### Accessibility
 - **ARIA Labels**: All interactive elements have proper labels
 - **Keyboard Navigation**: Full keyboard support for all actions
 - **Focus Management**: Proper focus handling when opening/closing
 - **Screen Reader**: Announce state changes and actions
-
-### 7. Future Enhancements
-
-#### Phase 2 Features
-1. **Rich Content Support**:
-   - Image clipboard support with thumbnails
-   - HTML formatting preservation
-   - File clipboard support
-
-2. **Smart Features**:
-   - Auto-categorization (code, URLs, emails, etc.)
-   - Duplicate detection and merging
-   - Clipboard templates/snippets
-
-3. **Organization**:
-   - User-defined categories/folders
-   - Tags and labels
-   - Favorites/starred items
-
-4. **Task Completion Assistance** (Long-term goal):
-   - Use clipboard history to understand user intent
-   - Suggest next steps based on copied content
-   - Context-aware recommendations
-   - Integration with agent for clipboard-aware actions
-
-5. **Sync and Backup**:
-   - Optional cloud sync via CouchDB
-   - Export/import clipboard history
-   - Sync across Darc instances
 
 ## Implementation Plan
 
@@ -424,21 +233,19 @@ Filters change the displayed items:
 7. Implement copy event detection
 
 ### Phase 2: Enhanced UX
-1. Implement filters and grouping
-2. Add keyboard shortcuts
-3. Improve visual design
-4. Add animations and transitions
+1. Add keyboard shortcuts
+2. Improve visual design
+3. Add animations and transitions
 
 ### Phase 3: Advanced Features
 1. Image clipboard support
-2. Smart categorization
-3. Export/import functionality
+2. Export/import functionality
 
 ## Testing Strategy
 
 ### Unit Tests
 - ClipboardMonitor service
-- Data queries and filtering
+- Data queries
 - Content type detection
 - Deduplication logic
 
@@ -452,7 +259,6 @@ Filters change the displayed items:
 
 E2E tests will use Playwright to capture screenshots of the feature in action, which will be linked in a README.md for easy validation. This will create a visual user story showing:
 - Copy text from various sources
-- Filter clipboard history
 - Pin/unpin items
 - Delete items
 - Clear all history
