@@ -12,12 +12,12 @@ The MVP will implement **Phase 1: Core Functionality** from the design document,
 - ✅ Basic clipboard monitoring and text capture
 - ✅ Local storage using PouchDB
 - ✅ Simple sidebar UI for viewing history
-- ✅ Copy-to-clipboard functionality from history
 - ✅ Delete individual entries
 - ✅ Basic empty state
 - ✅ Integration with existing sidebar system
 
 ### What's Deferred (Post-MVP)
+- ⏭️ Copy-to-clipboard functionality from history
 - ⏭️ Pin/unpin functionality
 - ⏭️ Date grouping ("Today", "Yesterday", etc.)
 - ⏭️ Source tracking (favicon, origin)
@@ -109,7 +109,6 @@ document.addEventListener('copy', handleCopy)
 - Load entries on mount
 - Subscribe to database changes
 - Handle entry deletion
-- Handle copy-to-clipboard
 
 **Simplified Layout**:
 ```
@@ -118,13 +117,13 @@ document.addEventListener('copy', handleCopy)
 ├─────────────────────────────────────────┤
 │                                         │
 │  ┌───────────────────────────────────┐ │
-│  │ 2:30 PM                      📋 🗑│ │
+│  │ 2:30 PM                         🗑│ │
 │  │ const handleCopy = async () => { │ │
 │  │ await navigator.clipboard...     │ │
 │  └───────────────────────────────────┘ │
 │                                         │
 │  ┌───────────────────────────────────┐ │
-│  │ 2:15 PM                      📋 🗑│ │
+│  │ 2:15 PM                         🗑│ │
 │  │ Lorem ipsum dolor sit amet...    │ │
 │  └───────────────────────────────────┘ │
 │                                         │
@@ -137,19 +136,17 @@ document.addEventListener('copy', handleCopy)
 
 **Props**:
 - `entry` - Clipboard document
-- `onCopy` - Copy handler
 - `onDelete` - Delete handler
 
 **UI Elements**:
 - Timestamp (simple time format)
 - Content text (full text, scrollable)
-- Copy button
 - Delete button
 
 **Simplified Item**:
 ```
 ┌─────────────────────────────────────────┐
-│ 2:30 PM                          📋 🗑  │
+│ 2:30 PM                             🗑  │
 │─────────────────────────────────────────│
 │ const handleCopy = async () => {        │
 │   const text = await navigator          │
@@ -284,7 +281,7 @@ export async function deleteClipboardEntry(id) {
 ### Step 3: Create ClipboardHistoryItem Component
 1. Create `/app/components/ClipboardHistoryItem.svelte`
 2. Implement simple item display
-3. Add copy and delete buttons
+3. Add delete button
 4. Style to match existing Darc design
 
 ### Step 4: Create ClipboardHistory Component
@@ -292,7 +289,7 @@ export async function deleteClipboardEntry(id) {
 2. Implement entry loading from database
 3. Add empty state
 4. Connect to ClipboardHistoryItem
-5. Handle copy and delete actions
+5. Handle delete actions
 
 ### Step 5: Integrate with Sidebar System
 1. Modify `/app/components/RightSidebar.svelte`
@@ -340,7 +337,6 @@ db.createIndex({
 - [ ] Copy multiple different texts - verify all appear
 - [ ] Copy same text twice - verify no duplicates within 1 second
 - [ ] Open clipboard history sidebar - verify entries display
-- [ ] Click copy button on history item - verify copied to clipboard
 - [ ] Click delete button - verify item removed
 - [ ] Verify empty state when no history exists
 - [ ] Close and reopen sidebar - verify data persists
@@ -366,12 +362,11 @@ The MVP is complete when:
 1. ✅ Clipboard monitor successfully captures copy events
 2. ✅ Clipboard entries are stored in PouchDB
 3. ✅ Clipboard history sidebar opens and displays entries
-4. ✅ Users can copy items from history back to clipboard
-5. ✅ Users can delete individual entries
-6. ✅ Empty state displays when no history exists
-7. ✅ Data persists across browser sessions
-8. ✅ No console errors during normal operation
-9. ✅ UI matches Darc design patterns
+4. ✅ Users can delete individual entries
+5. ✅ Empty state displays when no history exists
+6. ✅ Data persists across browser sessions
+7. ✅ No console errors during normal operation
+8. ✅ UI matches Darc design patterns
 
 ## Performance Targets (MVP)
 
@@ -382,37 +377,17 @@ The MVP is complete when:
 
 ## Known Limitations (MVP)
 
-1. **No image support** - Only text/plain clipboard content
-2. **No rich text** - HTML formatting is not preserved
-3. **No source tracking** - Origin/page title not captured
-4. **No automatic cleanup** - Old entries remain until manually deleted
-5. **No settings** - Fixed behavior, no user configuration
-6. **No keyboard shortcuts** - Mouse interaction only
-7. **No pinning** - All entries treated equally
-8. **No grouping** - Simple chronological list
-9. **Large content** - Full text always shown (no truncation/preview)
-10. **No search/filter** - View all entries only
-
-## Future Enhancements (Post-MVP)
-
-After MVP validation, implement features from the full design:
-
-### Phase 2: Enhanced UX
-- Date grouping ("Today", "Yesterday", etc.)
-- Source tracking with favicons
-- Content preview/truncation
-- Pin functionality
-- Keyboard shortcuts
-- Visual polish (animations, hover states)
-
-### Phase 3: Advanced Features
-- Image clipboard support
-- Rich text/HTML support
-- Automatic cleanup based on age/count
-- Settings panel (retention, max entries, etc.)
-- Search and filtering
-- Tags and categorization
-- Export functionality
+1. **No copy-to-clipboard** - Cannot re-copy items from history (view only)
+2. **No image support** - Only text/plain clipboard content
+3. **No rich text** - HTML formatting is not preserved
+4. **No source tracking** - Origin/page title not captured
+5. **No automatic cleanup** - Old entries remain until manually deleted
+6. **No settings** - Fixed behavior, no user configuration
+7. **No keyboard shortcuts** - Mouse interaction only
+8. **No pinning** - All entries treated equally
+9. **No grouping** - Simple chronological list
+10. **Large content** - Full text always shown (no truncation/preview)
+11. **No search/filter** - View all entries only
 
 ## Migration Path
 
@@ -458,6 +433,6 @@ Estimated effort for MVP implementation:
 
 ## Conclusion
 
-This MVP provides a solid foundation for the clipboard history feature while minimizing complexity and development time. It delivers core value (persistent clipboard history with copy/delete functionality) while establishing patterns for future enhancements. The simplified scope allows for rapid iteration and user feedback before investing in advanced features.
+This MVP provides a solid foundation for the clipboard history feature while minimizing complexity and development time. It delivers core value (persistent clipboard history with view and delete functionality) while establishing patterns for future enhancements. The simplified scope allows for rapid iteration and user feedback before investing in advanced features.
 
 Once the MVP is validated and in use, the full design from `clipboard-history-design.md` can be implemented incrementally, building on this foundation without requiring major refactoring.
