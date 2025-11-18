@@ -38,7 +38,8 @@ export default defineConfig({
   // Shared settings for all projects
   use: {
     // Base URL
-    baseURL: 'http://localhost:5193',
+    baseURL: 'https://localhost:5194',
+    ignoreHTTPSErrors: true,
     
     // Collect trace when retrying the failed test
     trace: 'on-first-retry',
@@ -64,10 +65,12 @@ export default defineConfig({
   // Run local dev server before starting tests
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:5193',
+    url: 'https://localhost:5194',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
     stdout: 'pipe',
-    stderr: 'pipe'
+    stderr: 'pipe',
+    cwd: path.join(__dirname, '..'),
+    ignoreHTTPSErrors: true
   },
 });
