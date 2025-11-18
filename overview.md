@@ -1,5 +1,53 @@
 # Darc Browser - Developer Overview
 
+## Quick Start
+
+Want to jump right in? Here's the fastest way to get started:
+
+```bash
+# Clone and setup
+git clone https://github.com/scottjenson/xe-darc.git
+cd xe-darc
+
+# Install dependencies (requires pnpm 10.13.1)
+pnpm install
+
+# Generate SSL certificates
+cd certs && bash create.sh && cd ..
+
+# Start dev server (opens https://localhost:5194)
+pnpm run dev
+
+# Optional: Start AI agent server in another terminal
+pnpm run dev:agent
+```
+
+That's it! Read on for detailed documentation.
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Project Introduction](#project-introduction)
+- [Key Features](#key-features)
+- [Architecture Overview](#architecture-overview)
+- [Technology Stack](#technology-stack)
+- [Development Setup](#development-setup)
+- [Project Structure](#project-structure)
+- [Core Components](#core-components)
+- [Key Development Concepts](#key-development-concepts)
+- [Testing](#testing)
+- [Security Features](#security-features)
+- [AI Agent Integration](#ai-agent-integration)
+- [Development Workflow](#development-workflow)
+- [Configuration Files](#configuration-files)
+- [Performance Considerations](#performance-considerations)
+- [Browser Compatibility](#browser-compatibility)
+- [Contributing Guidelines](#contributing-guidelines)
+- [Troubleshooting](#troubleshooting)
+- [Deployment](#deployment)
+- [Resources](#resources)
+- [Project Status](#project-status)
+
 ## Project Introduction
 
 Darc is an **experimental next-generation browser** built on Xenon and Svelte that combines cutting-edge browser UI concepts from Arc, stacked browsing, and agentic browsers. This project focuses purely on UI innovation and advanced browser features without compromise on resource usage.
@@ -516,7 +564,13 @@ wrangler deploy
 
 ## Resources
 
-### Documentation
+### Project Documentation
+- **permissions.md**: Browser permissions configuration reference
+- **CLAUDE.md**: AI assistant guidance for code development
+- **todo.md**: Roadmap and planned features
+- **README.md**: Quick project introduction
+
+### External Documentation
 - **Controlled Frame API**: https://wicg.github.io/controlled-frame
 - **Svelte 5**: https://svelte.dev/docs/svelte/overview
 - **Vite**: https://vite.dev/
