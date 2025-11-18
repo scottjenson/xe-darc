@@ -36,6 +36,10 @@ test.describe('Clipboard History', () => {
     // Navigate to the application
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    
+    // Wait for the main UI to be visible
+    await page.waitForSelector('body', { state: 'visible' });
+    await page.waitForTimeout(1000); // Give the app time to render
   });
 
   test.afterEach(async () => {
@@ -45,6 +49,9 @@ test.describe('Clipboard History', () => {
 
   test('Copy text and view in clipboard history', async ({ page }) => {
     // Step 1: Initial state - Application loaded
+    // Wait for right sidebar buttons to be visible
+    await page.waitForSelector('button[title="Clipboard History"]', { timeout: 10000 });
+    
     await testContext.captureStep('initial-state', {
       description: 'Application loaded with default view',
       expectations: [
