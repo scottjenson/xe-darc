@@ -10,6 +10,7 @@
         switchToUserMods,
         switchToActivity,
         switchToAgent,
+        switchToClipboardHistory,
         switchToDevTools,
         devModeEnabled = false,
         userMods = [],
@@ -213,7 +214,7 @@
     })
 </script>
 
-<RightSidebar title="User Mods" {onClose} {openSidebars} {switchToResources} {switchToSettings} {switchToUserMods} {switchToActivity} {switchToAgent} {switchToDevTools} {devModeEnabled}>
+<RightSidebar title="User Mods" {onClose} {openSidebars} {switchToResources} {switchToSettings} {switchToUserMods} {switchToActivity} {switchToAgent} {switchToClipboardHistory} {switchToDevTools} {devModeEnabled}>
     {#snippet children()}
         <div style="margin-top: 16px;"></div>
         <!-- Add/Edit Form -->

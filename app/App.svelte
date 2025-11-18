@@ -17,6 +17,7 @@
     import UrlRenderer from './components/UrlRenderer.svelte'
     import AttachmentImage from './components/AttachmentImage.svelte'
     import Apps from './components/Apps.svelte'
+    import ClipboardHistory from './components/ClipboardHistory.svelte'
     import { onMount, untrack, tick } from 'svelte'
     import data from './data.svelte.js'
     import { origin } from './lib/utils.js'
@@ -1606,6 +1607,7 @@
     const switchToActivity = () => switchToSidebar('activity')
     const switchToAIAgent = () => switchToSidebar('aiAgent')
     const switchToDevTools = () => switchToSidebar('devTools')
+    const switchToClipboardHistory = () => switchToSidebar('clipboardHistory')
 
     function activateVoiceAgent() {
         agentEnabled = !agentEnabled
@@ -3913,6 +3915,7 @@
                           {switchToUserMods}
                           {switchToActivity}
                           switchToAgent={switchToAIAgent}
+                          {switchToClipboardHistory}
                           {switchToDevTools}
                           {devModeEnabled}
                           autoOpened={resourcesSidebarAutoOpened} />
@@ -3928,6 +3931,7 @@
                          {switchToUserMods}
                          {switchToActivity}
                          switchToAgent={switchToAIAgent}
+                         {switchToClipboardHistory}
                          {switchToDevTools}
                          {devModeEnabled} />
             </div>
@@ -3942,11 +3946,27 @@
                          {switchToUserMods}
                          {switchToActivity}
                          switchToAgent={switchToAIAgent}
+                         {switchToClipboardHistory}
                          {switchToDevTools}
                          {devModeEnabled}
                          {userMods}
                          onUpdateUserMods={updateUserMods}
                          currentTab={data.docs[data.spaceMeta.activeTabId]} />
+            </div>
+        {/if}
+        
+        {#if openSidebars.has('clipboardHistory')}
+            <div class="sidebar-panel" class:new-panel={openSidebars.has('clipboardHistory') && !prevOpenSidebars.has('clipboardHistory') && !isSwitchingSidebars && !isWindowResizing}>
+                <ClipboardHistory onClose={() => closeSidebar('clipboardHistory')} 
+                         {openSidebars}
+                         {switchToResources} 
+                         {switchToSettings}
+                         {switchToUserMods}
+                         {switchToActivity}
+                         switchToAgent={switchToAIAgent}
+                         {switchToClipboardHistory}
+                         {switchToDevTools}
+                         {devModeEnabled} />
             </div>
         {/if}
         
@@ -3959,6 +3979,7 @@
                          {switchToUserMods}
                          {switchToActivity}
                          {switchToAIAgent}
+                         {switchToClipboardHistory}
                          {switchToDevTools}
                          {devModeEnabled}
                          viewMode={data.ui.viewMode}
@@ -3976,6 +3997,7 @@
                          {switchToUserMods}
                          {switchToActivity}
                          switchToAgent={switchToAIAgent}
+                         {switchToClipboardHistory}
                          {switchToDevTools}
                          {devModeEnabled}
                          {tabs}
@@ -3992,6 +4014,7 @@
                                 {switchToUserMods}
                                 {switchToActivity}
                                 switchToAgent={switchToAIAgent}
+                                {switchToClipboardHistory}
                                 {switchToDevTools}
                                 {devModeEnabled}
                                 {data}

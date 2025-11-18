@@ -72,6 +72,7 @@
 		switchToUserMods,
 		switchToActivity,
 		switchToAIAgent,
+		switchToClipboardHistory,
 		switchToDevTools,
 		devModeEnabled = false,
 		viewMode = 'default',
@@ -2468,6 +2469,7 @@ The current system demonstrates strong performance and security characteristics.
 	{switchToUserMods}
 	{switchToActivity}
 	switchToAgent={switchToAIAgent}
+	{switchToClipboardHistory}
 	{switchToDevTools}
 	{devModeEnabled}
 >

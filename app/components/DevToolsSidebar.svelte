@@ -9,6 +9,7 @@
         switchToUserMods,
         switchToActivity,
         switchToAgent,
+        switchToClipboardHistory,
         switchToDevTools,
         devModeEnabled = false,
         data,
@@ -172,7 +173,7 @@
     fetchDevToolsData()
 </script>
 
-<RightSidebar title="Dev Tools" {onClose} {openSidebars} {switchToResources} {switchToSettings} {switchToUserMods} {switchToActivity} {switchToAgent} {switchToDevTools} {devModeEnabled}>
+<RightSidebar title="Dev Tools" {onClose} {openSidebars} {switchToResources} {switchToSettings} {switchToUserMods} {switchToActivity} {switchToAgent} {switchToClipboardHistory} {switchToDevTools} {devModeEnabled}>
     {#snippet children()}
         <div class="devtools-content">
             <div class="devtools-header">

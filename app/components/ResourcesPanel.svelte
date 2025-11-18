@@ -13,6 +13,7 @@
         switchToUserMods,
         switchToActivity,
         switchToAgent,
+        switchToClipboardHistory,
         switchToDevTools,
         devModeEnabled = false,
         autoOpened = false,
@@ -263,7 +264,7 @@
 
 <svelte:window onclick={handleClickOutside} onmousedown={handleMouseDownOutside} />
 
-<RightSidebar title="Resources" onClose={handleClose} {openSidebars} {switchToResources} {switchToSettings} {switchToUserMods} {switchToActivity} {switchToAgent} {switchToDevTools} {devModeEnabled}>
+<RightSidebar title="Resources" onClose={handleClose} {openSidebars} {switchToResources} {switchToSettings} {switchToUserMods} {switchToActivity} {switchToAgent} {switchToClipboardHistory} {switchToDevTools} {devModeEnabled}>
     {#snippet children()}
 		<div class="resources-controls">
 			<div class="scope-control">

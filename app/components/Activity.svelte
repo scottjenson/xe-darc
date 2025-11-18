@@ -9,6 +9,7 @@
         switchToUserMods,
         switchToActivity,
         switchToAgent,
+        switchToClipboardHistory,
         switchToDevTools,
         devModeEnabled = false
     } = $props()
@@ -228,7 +229,7 @@
     }
 </script>
 
-<RightSidebar title="Activity" {onClose} {openSidebars} {switchToResources} {switchToSettings} {switchToUserMods} {switchToActivity} {switchToAgent} {switchToDevTools} {devModeEnabled}>
+<RightSidebar title="Activity" {onClose} {openSidebars} {switchToResources} {switchToSettings} {switchToUserMods} {switchToActivity} {switchToAgent} {switchToClipboardHistory} {switchToDevTools} {devModeEnabled}>
     {#snippet children()}
         <div class="activity-timeline">
             {#each activityData.slice(0, visibleEntries) as activity, index (activity.id)}
