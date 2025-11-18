@@ -36,10 +36,11 @@ test.describe('Clipboard History', () => {
     // Navigate to the application
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     
-    // Wait for the main UI to be visible
+    // Wait for the main UI to be visible and fully rendered
     await page.waitForSelector('body', { state: 'visible' });
-    await page.waitForTimeout(1000); // Give the app time to render
+    await page.waitForTimeout(3000); // Give Svelte app time to fully render
   });
 
   test.afterEach(async () => {
@@ -50,7 +51,8 @@ test.describe('Clipboard History', () => {
   test('Copy text and view in clipboard history', async ({ page }) => {
     // Step 1: Initial state - Application loaded
     // Wait for right sidebar buttons to be visible
-    await page.waitForSelector('button[title="Clipboard History"]', { timeout: 10000 });
+    await page.waitForSelector('button[title="Clipboard History"]', { timeout: 15000 });
+    await page.waitForTimeout(1000); // Extra wait after element appears
     
     await testContext.captureStep('initial-state', {
       description: 'Application loaded with default view',
