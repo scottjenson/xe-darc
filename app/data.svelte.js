@@ -1174,10 +1174,15 @@ export default {
  */
 export async function getClipboardHistory(limit = 100) {
     try {
+        console.log('[getClipboardHistory] Querying database for clipboard entries...')
         const result = await db.find({
             selector: { type: 'clipboard' },
-            sort: [{ timestamp: 'desc' }],
+            sort: [{ type: 'desc' }, { timestamp: 'desc' }],
             limit
+        })
+        console.log('[getClipboardHistory] Found', result.docs.length, 'entries')
+        result.docs.forEach(doc => {
+            console.log('  -', doc._id, ':', doc.content.substring(0, 50))
         })
         return result.docs
     } catch (error) {
