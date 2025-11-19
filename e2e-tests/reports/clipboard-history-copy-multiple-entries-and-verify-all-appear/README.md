@@ -1,8 +1,8 @@
 # Test Report: clipboard-history-copy-multiple-entries-and-verify-all-appear
 
-**Generated**: 2025-11-18T06:08:01.984Z
+**Generated**: 2025-11-19T01:35:15.846Z
 
-**Total Steps**: 3
+**Total Steps**: 4
 
 ## User Story
 
@@ -18,45 +18,52 @@ As a user, I want to view my clipboard history so I can keep track of text I've 
 
 ---
 
-## Step 1: first-entry-copied
 
-**Description**: First entry copied: "First clipboard entry"
+## Step 1: First Entry Copied
 
-### Screenshot
+First entry copied: "First clipboard entry"
 
-![first-entry-copied](screenshots/001-first-entry-copied.png)
+![First Entry Copied](./screenshots/001-first-entry-copied.png)
 
-### Expected Outcomes
+### Expectations
 
-- ✓ First entry captured
+- ✓ First entry captured by clipboard monitor
 
 ---
 
-## Step 2: second-entry-copied
+## Step 2: Second Entry Copied
 
-**Description**: Second entry copied: "Second clipboard entry"
+Second entry copied: "Second clipboard entry"
 
-### Screenshot
+![Second Entry Copied](./screenshots/002-second-entry-copied.png)
 
-![second-entry-copied](screenshots/002-second-entry-copied.png)
-
-### Expected Outcomes
+### Expectations
 
 - ✓ Second entry captured
 
 ---
 
-## Step 3: third-entry-copied
+## Step 3: Third Entry Copied
 
-**Description**: Third entry copied: "Third clipboard entry"
+Third entry copied: "Third clipboard entry"
 
-### Screenshot
+![Third Entry Copied](./screenshots/003-third-entry-copied.png)
 
-![third-entry-copied](screenshots/003-third-entry-copied.png)
-
-### Expected Outcomes
+### Expectations
 
 - ✓ Third entry captured
 
 ---
+
+## Step 4: All Entries Visible
+
+All three entries visible in clipboard history
+
+![All Entries Visible](./screenshots/004-all-entries-visible.png)
+
+### Expectations
+
+- ✓ Three entries are displayed
+- ✓ Entries are in chronological order (newest first)
+- ✓ All text content is visible
 
