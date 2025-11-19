@@ -1,45 +1,47 @@
-# Test Report: clipboard-history-persistence-across-page-refresh
+# Test Report: Persistence Across Page Refresh
 
-**Generated**: 2025-11-19T03:04:40.077Z
+**Generated**: 2025-11-19T15:11:38.877Z
 
 **Total Steps**: 2
 
 ## User Story
 
-As a user, I want to view my clipboard history so I can keep track of text I've copied
+As a user, I want my clipboard history to persist across page refreshes so I don't lose my data
 
 ### Acceptance Criteria
 
-- User can copy text and see it appear in clipboard history
-- Clipboard history is accessible via sidebar
-- Copied entries are stored in PouchDB
-- Entries persist across page refreshes
-- User can delete individual entries
+- Clipboard sidebar is visible and open
+- Entry "Persistent entry" is stored in PouchDB
+- Entry is displayed in the sidebar
+- Page is about to be refreshed
 
 ---
 
 
-## Step 1: Before Page Refresh
+## Step 1: Entry visible before refresh
 
-Entry created: "This entry should persist after refresh"
+Clipboard sidebar is open showing the entry "Persistent entry" before page refresh
 
-![Before Page Refresh](./screenshots/001-before-refresh.png)
+![Entry visible before refresh](./screenshots/001-before-refresh.png)
 
 ### Expectations
 
-- ✓ Entry visible in clipboard history
+- ✓ Sidebar displays clipboard history
+- ✓ Entry is visible in the list
+- ✓ Entry is stored in database
 
 ---
 
-## Step 2: After Page Refresh
+## Step 2: Entry persists after refresh
 
-Page refreshed and clipboard history reopened
+After page refresh, clipboard sidebar is reopened and the entry "Persistent entry" is still visible
 
-![After Page Refresh](./screenshots/002-after-refresh.png)
+![Entry persists after refresh](./screenshots/002-after-refresh.png)
 
 ### Expectations
 
-- ✓ Entry persisted across page refresh
-- ✓ Entry still visible in clipboard history
-- ✓ PouchDB storage working correctly
+- ✓ Entry survived page refresh
+- ✓ Data persists in PouchDB
+- ✓ Sidebar correctly loads persisted data
+- ✓ UI shows the same entry as before refresh
 
