@@ -12,7 +12,9 @@
 	async function loadEntries() {
 		loading = true
 		try {
+			console.log('[ClipboardHistory] Loading entries...')
 			clipboardEntries = await getClipboardHistory()
+			console.log('[ClipboardHistory] Loaded', clipboardEntries.length, 'entries:', clipboardEntries)
 		} catch (error) {
 			console.error('Error loading clipboard history:', error)
 		} finally {
@@ -31,6 +33,7 @@
 	}
 	
 	onMount(() => {
+		console.log('[ClipboardHistory] Component mounted, loading entries...')
 		loadEntries()
 	})
 </script>
@@ -57,6 +60,7 @@
 				<div class="empty-message">Copy text to start building your history</div>
 			</div>
 		{:else}
+			{@const _ = console.log('[ClipboardHistory RENDER] Rendering', clipboardEntries.length, 'entries')}
 			<div class="clipboard-list">
 				{#each clipboardEntries as entry (entry._id)}
 					<ClipboardHistoryItem {entry} onDelete={handleDelete} />
