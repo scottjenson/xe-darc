@@ -133,7 +133,7 @@ async function runTests() {
   await openClipboardSidebar(page);
   
   // Step 1: Before delete - sidebar OPEN
-  const deleteDir = path.join(__dirname, 'reports/clipboard-history-delete-clipboard-entry/screenshots');
+  const deleteDir = path.join(__dirname, 'reports/003-clipboard-history-delete-clipboard-entry/screenshots');
   ensureDir(deleteDir);
   await page.screenshot({ path: path.join(deleteDir, '001-before-delete.png') });
   console.log('[Test] Step 1 screenshot captured: before-delete (sidebar OPEN)');
@@ -190,7 +190,7 @@ async function runTests() {
   );
   
   fs.writeFileSync(
-    path.join(__dirname, 'reports/clipboard-history-delete-clipboard-entry/README.md'),
+    path.join(__dirname, 'reports/003-clipboard-history-delete-clipboard-entry/README.md'),
     deleteReadme
   );
   console.log('[Test] Delete test README generated');
@@ -217,7 +217,7 @@ async function runTests() {
   await openClipboardSidebar(page);
   
   // Step 1: Before refresh - sidebar OPEN
-  const persistenceDir = path.join(__dirname, 'reports/clipboard-history-persistence-across-page-refresh/screenshots');
+  const persistenceDir = path.join(__dirname, 'reports/005-clipboard-history-persistence-across-page-refresh/screenshots');
   ensureDir(persistenceDir);
   await page.screenshot({ path: path.join(persistenceDir, '001-before-refresh.png') });
   console.log('[Test] Step 1 screenshot captured: before-refresh (sidebar OPEN)');
@@ -280,7 +280,7 @@ async function runTests() {
   );
   
   fs.writeFileSync(
-    path.join(__dirname, 'reports/clipboard-history-persistence-across-page-refresh/README.md'),
+    path.join(__dirname, 'reports/005-clipboard-history-persistence-across-page-refresh/README.md'),
     persistenceReadme
   );
   console.log('[Test] Persistence test README generated');
