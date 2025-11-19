@@ -59,13 +59,17 @@ const ledIndicators = $state({
 })
 
 db.bulkDocs(bootstrap).then(async (res) => {
-    db.createIndex({
+    // Create indexes for both main documents and clipboard
+    await db.createIndex({
         index: { fields: sortOrder }
-    }).then(() => {
-        refresh()
-        // Initialize clipboard monitor after database is ready
-        initClipboardMonitor(db)
     })
+    await db.createIndex({
+        index: { fields: ['type', 'timestamp'] }
+    })
+    
+    refresh()
+    // Initialize clipboard monitor after database is ready
+    initClipboardMonitor(db)
 
     const docsToUpdate = []
     for (const doc of res) {
