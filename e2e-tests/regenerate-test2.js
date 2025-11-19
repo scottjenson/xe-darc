@@ -99,7 +99,7 @@ async function runTest() {
   console.log('  ✓ First entry verified');
   
   // Close sidebar
-  await page.locator('button[aria-label="Close"]').first().click();
+  await page.locator('button[aria-label="Close Clipboard History"]').first().click();
   await page.waitForTimeout(500);
   
   // Copy second entry
@@ -158,7 +158,7 @@ async function runTest() {
   console.log('  ✓ Second entry verified');
   
   // Close sidebar
-  await page.locator('button[aria-label="Close"]').first().click();
+  await page.locator('button[aria-label="Close Clipboard History"]').first().click();
   await page.waitForTimeout(500);
   
   // Copy third entry
