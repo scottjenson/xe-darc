@@ -97,16 +97,26 @@ async function runTests() {
   // Step 2: Copy text
   const testText = 'Hello, this is a test clipboard entry!';
   await page.evaluate((text) => {
-    const temp = document.createElement('textarea');
-    temp.value = text;
-    temp.style.position = 'fixed';
-    temp.style.left = '-9999px';
-    document.body.appendChild(temp);
-    temp.select();
-    document.execCommand('copy');
+    // Create a div with text content (not textarea) so window.getSelection() works
+    const div = document.createElement('div');
+    div.textContent = text;
+    div.style.position = 'fixed';
+    div.style.left = '-9999px';
+    div.style.userSelect = 'text';
+    document.body.appendChild(div);
+    
+    // Select the text properly
+    const range = document.createRange();
+    range.selectNodeContents(div);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    
+    // Dispatch the copy event - this will trigger our clipboard monitor
     const copyEvent = new ClipboardEvent('copy', { bubbles: true, cancelable: true });
     document.dispatchEvent(copyEvent);
-    document.body.removeChild(temp);
+    
+    document.body.removeChild(div);
   }, testText);
   
   await page.waitForTimeout(1000);
@@ -176,14 +186,22 @@ async function runTests() {
   // Copy first entry
   const entry1 = 'First clipboard entry';
   await page.evaluate((text) => {
-    const temp = document.createElement('textarea');
-    temp.value = text;
-    document.body.appendChild(temp);
-    temp.select();
-    document.execCommand('copy');
+    const div = document.createElement('div');
+    div.textContent = text;
+    div.style.position = 'fixed';
+    div.style.left = '-9999px';
+    div.style.userSelect = 'text';
+    document.body.appendChild(div);
+    
+    const range = document.createRange();
+    range.selectNodeContents(div);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    
     const copyEvent = new ClipboardEvent('copy', { bubbles: true });
     document.dispatchEvent(copyEvent);
-    document.body.removeChild(temp);
+    document.body.removeChild(div);
   }, entry1);
   
   await page.waitForTimeout(1500);
@@ -199,14 +217,22 @@ async function runTests() {
   // Copy second entry
   const entry2 = 'Second clipboard entry';
   await page.evaluate((text) => {
-    const temp = document.createElement('textarea');
-    temp.value = text;
-    document.body.appendChild(temp);
-    temp.select();
-    document.execCommand('copy');
+    const div = document.createElement('div');
+    div.textContent = text;
+    div.style.position = 'fixed';
+    div.style.left = '-9999px';
+    div.style.userSelect = 'text';
+    document.body.appendChild(div);
+    
+    const range = document.createRange();
+    range.selectNodeContents(div);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    
     const copyEvent = new ClipboardEvent('copy', { bubbles: true });
     document.dispatchEvent(copyEvent);
-    document.body.removeChild(temp);
+    document.body.removeChild(div);
   }, entry2);
   
   await page.waitForTimeout(1500);
@@ -222,14 +248,22 @@ async function runTests() {
   // Copy third entry
   const entry3 = 'Third clipboard entry';
   await page.evaluate((text) => {
-    const temp = document.createElement('textarea');
-    temp.value = text;
-    document.body.appendChild(temp);
-    temp.select();
-    document.execCommand('copy');
+    const div = document.createElement('div');
+    div.textContent = text;
+    div.style.position = 'fixed';
+    div.style.left = '-9999px';
+    div.style.userSelect = 'text';
+    document.body.appendChild(div);
+    
+    const range = document.createRange();
+    range.selectNodeContents(div);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    
     const copyEvent = new ClipboardEvent('copy', { bubbles: true });
     document.dispatchEvent(copyEvent);
-    document.body.removeChild(temp);
+    document.body.removeChild(div);
   }, entry3);
   
   await page.waitForTimeout(1500);
@@ -349,14 +383,22 @@ async function runTests() {
   // Copy a new entry
   const persistText = 'This entry should persist after refresh';
   await page.evaluate((text) => {
-    const temp = document.createElement('textarea');
-    temp.value = text;
-    document.body.appendChild(temp);
-    temp.select();
-    document.execCommand('copy');
+    const div = document.createElement('div');
+    div.textContent = text;
+    div.style.position = 'fixed';
+    div.style.left = '-9999px';
+    div.style.userSelect = 'text';
+    document.body.appendChild(div);
+    
+    const range = document.createRange();
+    range.selectNodeContents(div);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+    
     const copyEvent = new ClipboardEvent('copy', { bubbles: true });
     document.dispatchEvent(copyEvent);
-    document.body.removeChild(temp);
+    document.body.removeChild(div);
   }, persistText);
   
   await page.waitForTimeout(1000);
