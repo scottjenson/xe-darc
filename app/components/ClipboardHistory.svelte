@@ -8,6 +8,7 @@
 	
 	let clipboardEntries = $state([])
 	let loading = $state(true)
+	let refreshInterval
 	
 	async function loadEntries() {
 		loading = true
@@ -35,6 +36,15 @@
 	onMount(() => {
 		console.log('[ClipboardHistory] Component mounted, loading entries...')
 		loadEntries()
+		
+		// Refresh clipboard entries every 2 seconds to pick up new copies
+		refreshInterval = setInterval(loadEntries, 2000)
+		
+		return () => {
+			if (refreshInterval) {
+				clearInterval(refreshInterval)
+			}
+		}
 	})
 </script>
 
