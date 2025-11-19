@@ -20,7 +20,7 @@ async function runTest() {
   await page.waitForTimeout(3000);
 
   console.log('📝 Test 2: Copy multiple entries and verify all appear');
-  const test2Dir = path.join(__dirname, 'reports', 'clipboard-history-copy-multiple-entries-and-verify-all-appear');
+  const test2Dir = path.join(__dirname, 'reports', '002-clipboard-history-copy-multiple-entries-and-verify-all-appear');
   const test2Screenshots = path.join(test2Dir, 'screenshots');
   
   // Ensure directory exists

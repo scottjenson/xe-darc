@@ -18,9 +18,19 @@ import { TestContext } from '../helpers/test-context.js';
 
 test.describe('Clipboard History', () => {
   let testContext;
+  
+  // Map test titles to numeric prefixes for consistent ordering
+  const testNumberMap = {
+    'Copy text and view in clipboard history': '001',
+    'Copy multiple entries and verify all appear': '002',
+    'Delete clipboard entry': '003',
+    'Verify empty state': '004',
+    'Persistence across page refresh': '005'
+  };
 
   test.beforeEach(async ({ page }, testInfo) => {
-    const testName = 'clipboard-history-' + testInfo.title.replace(/\s+/g, '-').toLowerCase();
+    const testNumber = testNumberMap[testInfo.title] || '000';
+    const testName = testNumber + '-clipboard-history-' + testInfo.title.replace(/\s+/g, '-').toLowerCase();
     testContext = new TestContext(page, testName, {
       description: 'As a user, I want to view my clipboard history so I can keep track of text I\'ve copied',
       acceptanceCriteria: [

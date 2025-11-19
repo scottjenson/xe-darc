@@ -73,7 +73,7 @@ async function runTests() {
 
   // Test 1: Copy text and view in clipboard history
   console.log('📝 Test 1: Copy text and view in clipboard history');
-  const test1Dir = path.join(__dirname, 'reports', 'clipboard-history-copy-text-and-view-in-clipboard-history');
+  const test1Dir = path.join(__dirname, 'reports', '001-clipboard-history-copy-text-and-view-in-clipboard-history');
   const test1Screenshots = path.join(test1Dir, 'screenshots');
   ensureDir(test1Screenshots);
   
@@ -165,12 +165,12 @@ async function runTests() {
   console.log('  ✓ Verified entry is visible');
   
   // Generate README for test 1
-  fs.writeFileSync(path.join(test1Dir, 'README.md'), generateReadme('clipboard-history-copy-text-and-view-in-clipboard-history', test1Steps));
+  fs.writeFileSync(path.join(test1Dir, 'README.md'), generateReadme('001-clipboard-history-copy-text-and-view-in-clipboard-history', test1Steps));
   console.log(`✅ Test 1 complete: ${test1Steps.length} steps captured\n`);
 
   // Test 2: Copy multiple entries
   console.log('📝 Test 2: Copy multiple entries and verify all appear');
-  const test2Dir = path.join(__dirname, 'reports', 'clipboard-history-copy-multiple-entries-and-verify-all-appear');
+  const test2Dir = path.join(__dirname, 'reports', '002-clipboard-history-copy-multiple-entries-and-verify-all-appear');
   const test2Screenshots = path.join(test2Dir, 'screenshots');
   ensureDir(test2Screenshots);
   
@@ -298,7 +298,7 @@ async function runTests() {
 
   // Test 3: Delete entry
   console.log('📝 Test 3: Delete clipboard entry');
-  const test3Dir = path.join(__dirname, 'reports', 'clipboard-history-delete-clipboard-entry');
+  const test3Dir = path.join(__dirname, 'reports', '003-clipboard-history-delete-clipboard-entry');
   const test3Screenshots = path.join(test3Dir, 'screenshots');
   ensureDir(test3Screenshots);
   
@@ -340,7 +340,7 @@ async function runTests() {
 
   // Test 4: Empty state
   console.log('📝 Test 4: Verify empty state');
-  const test4Dir = path.join(__dirname, 'reports', 'clipboard-history-verify-empty-state');
+  const test4Dir = path.join(__dirname, 'reports', '004-clipboard-history-verify-empty-state');
   const test4Screenshots = path.join(test4Dir, 'screenshots');
   ensureDir(test4Screenshots);
   
@@ -374,7 +374,7 @@ async function runTests() {
 
   // Test 5: Persistence (refresh page)
   console.log('📝 Test 5: Persistence across page refresh');
-  const test5Dir = path.join(__dirname, 'reports', 'clipboard-history-persistence-across-page-refresh');
+  const test5Dir = path.join(__dirname, 'reports', '005-clipboard-history-persistence-across-page-refresh');
   const test5Screenshots = path.join(test5Dir, 'screenshots');
   ensureDir(test5Screenshots);
   

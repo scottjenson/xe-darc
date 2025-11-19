@@ -42,7 +42,7 @@ const __dirname = path.dirname(__filename);
   
   await page.waitForTimeout(1000);
   
-  const test2Dir = path.join(__dirname, 'reports', 'clipboard-history-copy-multiple-entries-and-verify-all-appear');
+  const test2Dir = path.join(__dirname, 'reports', '002-clipboard-history-copy-multiple-entries-and-verify-all-appear');
   const test2Screenshots = path.join(test2Dir, 'screenshots');
   
   // Ensure directory exists
