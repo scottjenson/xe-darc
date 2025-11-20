@@ -1102,6 +1102,133 @@ When implementing E2E tests following this strategy, agents should:
 9. **Document expectations**: Clearly list expected outcomes for each step
 10. **Review generated reports**: Manually review the generated README.md and screenshots
 
+## Practical Learnings from Implementation
+
+This section captures key insights and lessons learned from building and debugging the E2E testing system. These practical tips can help avoid common pitfalls and accelerate future testing work.
+
+### Environment Setup (30% of time spent)
+
+Getting the development environment configured correctly is crucial for reliable E2E testing:
+
+**Dev Server Setup**
+- Start dev server in detached session for persistence: `dtach -A ./dtach/darc npm run dev`
+- This allows the server to run continuously across multiple test sessions
+- Reduces startup overhead and ensures consistent testing environment
+
+**SSL Certificate Configuration**
+- Generate SSL certs early in the process: `mkcert localhost 127.0.0.1`
+- Self-signed certificates are required for HTTPS testing on localhost
+- Many browser features (like clipboard access) require secure contexts
+- Don't wait until tests fail to set up certificates
+
+**UI Validation Before Testing**
+- Verify button renders and is interactive before writing tests
+- Use browser DevTools to inspect element selectors and data-testid attributes
+- Ensure animations complete before capturing screenshots
+- Validate that target elements are visible and clickable
+
+### Clipboard Testing (40% of time spent)
+
+Clipboard testing proved to be the most time-consuming aspect, requiring specific techniques:
+
+**DOM Element Approach**
+- Use DOM elements (`<div>` + `createRange()`) instead of textareas for clipboard operations
+- Textareas have inconsistent behavior across browsers for clipboard events
+- DOM selection APIs provide more reliable programmatic control
+
+**Database Write Timing**
+- Database writes need 2.5-3.5 seconds before capturing screenshots
+- IndexedDB operations are asynchronous and may not reflect immediately in UI
+- Add explicit waits after clipboard operations that trigger database updates
+- Example: `await page.waitForTimeout(3000)` after clipboard paste
+
+**Component Auto-Refresh**
+- Implement auto-refresh in components (2-second interval recommended)
+- This ensures UI updates when database changes occur
+- Reduces flakiness in tests that depend on data synchronization
+- Example: Use Svelte reactive statements or setInterval to poll database
+
+### Database Issues (20% of time spent)
+
+PouchDB/IndexedDB require careful attention to index and query configuration:
+
+**Index Field Matching**
+- Index fields must match sort fields exactly - no exceptions
+- Sort must include ALL index selector fields in the same order
+- Partial index matching is not supported and will cause queries to fail
+
+**Correct Index Pattern**
+```javascript
+// Index definition
+await db.createIndex({
+  index: {
+    fields: ['type', 'timestamp']
+  }
+});
+
+// Query MUST sort by all indexed fields
+const result = await db.find({
+  selector: { type: 'clipboard-entry' },
+  sort: [
+    { type: 'desc' },      // Must include type (first index field)
+    { timestamp: 'desc' }   // Must include timestamp (second index field)
+  ]
+});
+```
+
+**Common Mistakes to Avoid**
+- ❌ Sorting by only one field when index has multiple fields
+- ❌ Sorting fields in different order than index definition
+- ❌ Using fields in sort that aren't in the index
+- ✅ Always match index fields exactly in sort clause
+
+### Screenshot Capture (10% of time spent)
+
+Effective screenshot strategies for validation and debugging:
+
+**Smart Waiting**
+- Wait for specific UI elements, not just time delays
+- Use `await page.waitForSelector('[data-testid="target-element"]')` instead of fixed timeouts
+- Combine element waits with short timeouts for animations
+- Example: Wait for element, then wait 500ms for animation to complete
+
+**File Size Validation**
+- Screenshot file size validates content presence
+- 21KB+ = screenshot contains populated UI with entries
+- 11KB = empty or minimal UI (no data loaded)
+- Use file size as a quick sanity check in automated tests
+
+**Consistent UI State**
+- Always show sidebar in open state for test screenshots
+- Ensures consistent visual documentation
+- Makes it easier to compare screenshots across test runs
+- Helps identify UI regressions quickly
+
+**Screenshot Organization**
+- Capture before and after states for each operation
+- Name screenshots descriptively (e.g., `01-initial-state.png`, `02-after-paste.png`)
+- Keep screenshots in test-specific directories
+- Include timestamps in filenames for historical comparison
+
+### Additional Tips
+
+**Test Isolation**
+- Clear database state between tests to avoid data contamination
+- Reset clipboard state before clipboard-related tests
+- Use fresh browser contexts for each test suite
+
+**Debugging Strategies**
+- Enable verbose logging for database operations
+- Capture browser console logs during test execution
+- Take screenshots on test failure for post-mortem analysis
+- Use Playwright's trace viewer for detailed execution replay
+
+**Performance Optimization**
+- Reuse browser contexts where possible
+- Parallelize independent tests
+- Use headless mode in CI but headed mode for debugging
+- Cache database indices to speed up queries
+
 ## Conclusion
 
 This E2E testing strategy provides a comprehensive framework for validating Darc Browser functionality through user story-based tests with visual documentation. By following these guidelines, agents can create maintainable, debuggable, and well-documented tests that serve both as validation tools and as living documentation of the application's behavior.
