@@ -8,7 +8,10 @@
     "dev:agent": "pnpm exec wrangler dev --port 8787",
     "build": "vite build",
     "preview": "vite preview",
-    "bump-version": "node ./bump_version.js"
+    "bump-version": "node ./bump_version.js",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug"
   },
   "engines": {
     "node": ">=23.0.0"
@@ -42,5 +45,8 @@
     "vite-plugin-html-inject": "1.1.2",
     "wbn-sign": "0.2.1",
     "wrangler": "4.32.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
   }
 }

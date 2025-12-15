@@ -1,0 +1,8 @@
+# Test reports and artifacts
+reports/
+videos/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
