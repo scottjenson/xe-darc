@@ -22,3 +22,10 @@ certs/rootCA.srl
 certs/localhost.crt
 profile/*
 profile2/*
+
+# E2E test artifacts
+e2e-tests/reports/
+e2e-tests/videos/
+playwright-report/
+test-results/
+test-results.json
