@@ -2,6 +2,12 @@
 
 This directory contains end-to-end tests for the Darc Browser, built using Playwright. The tests follow the strategy outlined in `/e2e/e2e-testing-strategy.md`.
 
+## 📋 Current Status
+
+**The E2E test infrastructure is complete and ready to use.** See [IMPLEMENTATION_STATUS.md](./IMPLEMENTATION_STATUS.md) for detailed status information.
+
+The clipboard history tests are fully implemented but require the clipboard history feature to be built first. See the implementation status document for next steps.
+
 ## Directory Structure
 
 ```

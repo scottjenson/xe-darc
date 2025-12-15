@@ -27,7 +27,7 @@ export default defineConfig({
   // Shared settings for all projects
   use: {
     // Base URL
-    baseURL: 'https://localhost:5193',
+    baseURL: 'https://localhost:5194',
     
     // Screenshot on failure
     screenshot: 'only-on-failure',
@@ -71,11 +71,13 @@ export default defineConfig({
   ],
   
   // Web server configuration
-  webServer: {
-    command: 'npm run dev',
-    url: 'https://localhost:5193',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000,
-    ignoreHTTPSErrors: true,
-  },
+  // Note: Start the dev server manually before running tests
+  // Or uncomment the webServer config below to auto-start
+  // webServer: {
+  //   command: 'npm run dev',
+  //   url: 'https://localhost:5193',
+  //   reuseExistingServer: !process.env.CI,
+  //   timeout: 120000,
+  //   ignoreHTTPSErrors: true,
+  // },
 });

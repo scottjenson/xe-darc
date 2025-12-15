@@ -34,7 +34,7 @@ test.describe('Clipboard History MVP', () => {
     testDataManager = new TestDataManager(page);
     
     // Navigate to app
-    await page.goto('https://localhost:5193');
+    await page.goto('https://localhost:5194');
     
     // Wait for app to be ready
     await BrowserSetup.waitForAppReady(page);
